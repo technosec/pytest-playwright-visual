@@ -1,3 +1,5 @@
+import base64
+import json
 import sys
 import os
 import shutil
@@ -48,17 +50,37 @@ def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str) -> Calla
         if mismatch == 0:
             return
         else:
+
+             
             # Create new test_results folder
             test_results_dir.mkdir(parents=True, exist_ok=True)
             img_diff.save(f'{test_results_dir}/Diff_{name}')
             img_a.save(f'{test_results_dir}/Actual_{name}')
             img_b.save(f'{test_results_dir}/Expected_{name}')
-            allure.attach.file(f'{test_results_dir}/Diff_{name}', name='Diff Image',
-                        attachment_type=allure.attachment_type.PNG)
-            allure.attach.file(f'{test_results_dir}/Actual_{name}', name='Actual Image',
-                                attachment_type=allure.attachment_type.PNG)
-            allure.attach.file(f'{test_results_dir}/Expected_{name}', name='Expected Image',
-                                attachment_type=allure.attachment_type.PNG)
+
+            # Read the three files and encode to base64
+            expected = base64.b64encode(Path(f'{test_results_dir}/Expected_{name}').read_bytes()).decode()
+            actual = base64.b64encode(Path(f'{test_results_dir}/Actual_{name}').read_bytes()).decode()
+            diff = base64.b64encode(Path(f'{test_results_dir}/Diff_{name}').read_bytes()).decode()
+
+            # Wrap in a JSON, encode as bytes
+            content = json.dumps({
+                'expected': f'data:image/png;base64,{expected}',
+                'actual': f'data:image/png;base64,{actual}',
+                'diff': f'data:image/png;base64,{diff}',
+            }).encode()
+
+            # Attach to the test report
+            allure.attach(content,
+                        name='Screenshot diff',
+                        attachment_type='application/vnd.allure.image.diff')
+            
+            # allure.attach.file(f'{test_results_dir}/Diff_{name}', name='Diff Image',
+            #             attachment_type=allure.attachment_type.PNG)
+            # allure.attach.file(f'{test_results_dir}/Actual_{name}', name='Actual Image',
+            #                     attachment_type=allure.attachment_type.PNG)
+            # allure.attach.file(f'{test_results_dir}/Expected_{name}', name='Expected Image',
+            #                     attachment_type=allure.attachment_type.PNG)
             pytest.fail("--> Snapshots DO NOT match!")
 
     return compare
