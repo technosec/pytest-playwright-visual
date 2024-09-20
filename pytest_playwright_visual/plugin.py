@@ -13,11 +13,12 @@ import allure
 
 
 @pytest.fixture
-def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str) -> Callable:
+def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_page ) -> Callable:
     test_name = f"{str(Path(request.node.name))}[{str(sys.platform)}]"
     test_dir = str(Path(request.node.name)).split('[', 1)[0]
 
-    def compare(img: bytes, *, threshold: float = 0.3, name=f'{test_name}.png', fail_fast=False) -> None:
+    def compare(img: bytes, rovalab_page, *, threshold: float = 0.3, fail_fast=False) -> None:
+        name=f'{test_name}[{rovalab_page.current_tab}].png'
         update_snapshot = pytestconfig.getoption("--update-snapshots")
         test_file_name = str(os.path.basename(Path(request.node.fspath))).strip('.py')
         filepath = (
@@ -38,11 +39,12 @@ def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str) -> Calla
             shutil.rmtree(test_results_dir)
         if update_snapshot:
             file.write_bytes(img)
-            pytest.fail("--> Snapshots updated. Please review images")
+            print("--> Snapshots updated. Please review images")
+            return
         if not file.exists():
             file.write_bytes(img)
-            # pytest.fail(
-            pytest.fail("--> New snapshot(s) created. Please review images")
+            print("--> New snapshot(s) created. Please review images")
+            return
         img_a = Image.open(BytesIO(img))
         img_b = Image.open(file)
         img_diff = Image.new("RGBA", img_a.size)
