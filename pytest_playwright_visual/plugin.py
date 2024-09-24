@@ -18,7 +18,7 @@ def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_
     test_dir = str(Path(request.node.name)).split('[', 1)[0]
 
     def compare(img: bytes, rovalab_page, *, threshold: float = 0.3, fail_fast=False) -> None:
-        name=f'{test_name}[{rovalab_page.current_tab}].png'
+        name=f'{test_name}[{rovalab_page.test_step}-{rovalab_page.current_tab}].png'
         update_snapshot = pytestconfig.getoption("--update-snapshots")
         test_file_name = str(os.path.basename(Path(request.node.fspath))).strip('.py')
         filepath = (
