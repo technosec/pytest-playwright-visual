@@ -17,7 +17,7 @@ def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_
     test_name = f"{str(Path(request.node.name))}[{str(sys.platform)}]"
     test_dir = str(Path(request.node.name)).split('[', 1)[0]
 
-    def compare(img: bytes, rovalab_page, *, threshold: float = 0.3, fail_fast=False) -> None:
+    def compare(img: bytes, rovalab_page, *,  fail_fast=False) -> None:
         name=f'{test_name}[{rovalab_page.test_step}-{rovalab_page.current_tab}].png'
         update_snapshot = pytestconfig.getoption("--update-snapshots")
         test_file_name = str(os.path.basename(Path(request.node.fspath))).strip('.py')
@@ -48,7 +48,7 @@ def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_
         img_a = Image.open(BytesIO(img))
         img_b = Image.open(file)
         img_diff = Image.new("RGBA", img_a.size)
-        mismatch = pixelmatch(img_a, img_b, img_diff, threshold=threshold, fail_fast=fail_fast)
+        mismatch = pixelmatch(img_a, img_b, img_diff, threshold=rovalab_page.threshold, fail_fast=fail_fast)
         if mismatch == 0:
             return
         else:
