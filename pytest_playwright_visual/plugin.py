@@ -13,12 +13,13 @@ import allure
 
 
 @pytest.fixture
-def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_page ) -> Callable:
+def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_page, custom_name: str ) -> Callable:
     test_name = f"{str(Path(request.node.name))}[{str(sys.platform)}]"
     test_dir = str(Path(request.node.name)).split('[', 1)[0]
 
     def compare(img: bytes, rovalab_page, *,  fail_fast=False) -> None:
-        name=f'{test_name}[{rovalab_page.test_step}-{rovalab_page.current_tab}].png'
+        name_ending = custom_name if custom_name else f"{rovalab_page.test_step}-{rovalab_page.current_tab}"
+        name = f'{test_name}[{name_ending}].png'
         update_snapshot = pytestconfig.getoption("--update-snapshots")
         test_file_name = str(os.path.basename(Path(request.node.fspath))).strip('.py')
         filepath = (
