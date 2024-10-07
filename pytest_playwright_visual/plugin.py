@@ -13,7 +13,7 @@ import allure
 
 
 @pytest.fixture
-def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_page, custom_name: str ) -> Callable:
+def assert_snapshot(pytestconfig: Any, request: Any, browser_name: str, rovalab_page ) -> Callable:
     test_name = f"{str(Path(request.node.name))}[{str(sys.platform)}]"
     test_dir = str(Path(request.node.name)).split('[', 1)[0]
 
