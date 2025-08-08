@@ -13,7 +13,7 @@ setup(
     packages=["pytest_playwright_visual"],
     include_package_data=True,
     install_requires=[
-        "pytest_playwright>=0.1.2",
+        "pytest_playwright_asyncio>=0.7.0",
         "Pillow>=8.2.0",
         "pixelmatch>=0.3.0",
     ],
